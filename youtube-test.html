@@ -16,10 +16,11 @@ button.secondary{background:#475569;color:#fff}button:disabled{opacity:.5}
 </style>
 </head>
 <body><main>
-<h1>🎵 Tamil Hitster</h1><p class="muted">YouTube 20-second clip tester · separate from live Spotify game</p>
+<h1>🎵 Tamil Hitster</h1><p class="muted">YouTube custom start/end clip tester · separate from live Spotify game</p>
 <div class="panel">
 <label for="url">YouTube video link</label><input id="url" placeholder="https://www.youtube.com/watch?v=..." autocomplete="off">
 <label for="start">Clip start (MM:SS or seconds)</label><input id="start" value="01:30" inputmode="text">
+<label for="end">Clip end (MM:SS or seconds)</label><input id="end" placeholder="Optional — defaults to 20 seconds after start" inputmode="text">
 <label for="card">Test card ID (optional)</label><input id="card" placeholder="001">
 <button id="load">Load video</button>
 <p class="muted"><small>Only use videos that allow embedding. The official YouTube player must remain visible and accessible; video titles or ads may reveal the answer.</small></p>
@@ -27,18 +28,18 @@ button.secondary{background:#475569;color:#fff}button:disabled{opacity:.5}
 <div class="panel">
 <div id="player"></div>
 <div id="timer">00:00 / 00:20</div>
-<button id="play" disabled>▶ Play 20 seconds</button><button id="stop" class="secondary" disabled>■ Pause</button>
+<button id="play" disabled>▶ Play clip</button><button id="stop" class="secondary" disabled>■ Pause</button>
 <p id="status" role="status">Paste a YouTube link, enter a start time, and select Load video.</p>
 </div>
 <div class="panel">
 <button id="copy" class="secondary" disabled>Copy test link</button>
-<p><small>For your final 25-song catalog, save each approved YouTube video ID and start time. This test page does not publish a song list.</small></p>
+<p><small>For your final 25-song catalog, save each approved YouTube video ID, start time and end time. This test page does not publish a song list.</small></p>
 </div>
 </main>
 <script>
 'use strict';
 const $=id=>document.getElementById(id);
-let player=null, ready=false, clipStart=0, stopTimer=null, poll=null, playing=false, loadedId=null;
+let player=null, ready=false, clipStart=0, clipEnd=20, stopTimer=null, poll=null, playing=false, loadedId=null;
 const say=s=>$('status').textContent=s;
 const seconds=v=>{
   const p=String(v).trim().split(':').map(Number);
@@ -55,12 +56,20 @@ function videoId(raw){
  if(!id||!/^[a-zA-Z0-9_-]{11}$/.test(id))throw Error('Could not find a valid YouTube video ID.');
  return id;
 }
-function clear(){clearTimeout(stopTimer);clearInterval(poll);stopTimer=null;poll=null;playing=false;$('timer').textContent='00:00 / 00:20';$('stop').disabled=true}
+function readTimes(){
+ const start=seconds($('start').value);
+ const raw=$('end').value.trim();
+ const end=raw?seconds(raw):start+20;
+ if(end<=start)throw Error('End time must be later than start time.');
+ if(end-start>600)throw Error('Maximum clip length is 10 minutes.');
+ return {start,end};
+}
+function clear(){clearTimeout(stopTimer);clearInterval(poll);stopTimer=null;poll=null;playing=false;$('timer').textContent='00:00 / '+fmt(clipEnd-clipStart);$('stop').disabled=true}
 function pause(){clear();if(player&&ready&&typeof player.pauseVideo==='function')player.pauseVideo();say('Paused.');}
 function play(){
  if(!ready||!player)return;
  try{
-  clipStart=seconds($('start').value);
+  ({start:clipStart,end:clipEnd}=readTimes());
   clear();
   // Explicit user gesture is needed on mobile. YouTube may still block playback.
   player.seekTo(clipStart,true);
@@ -72,20 +81,20 @@ function play(){
 function startMonitoring(){
  if(playing)return;
  playing=true;
- const finish=()=>{if(!playing)return;pause();say('20-second clip finished (approximate timing).')};
- stopTimer=setTimeout(finish,22000);
+ const finish=()=>{if(!playing)return;pause();say('Clip finished at '+fmt(clipEnd)+' (approximate timing).')};
+ stopTimer=setTimeout(finish,(clipEnd-clipStart+2)*1000);
  poll=setInterval(()=>{
   if(!player||!ready)return;
   const pos=player.getCurrentTime();
   const elapsed=Math.max(0,pos-clipStart);
-  $('timer').textContent=fmt(Math.min(20,elapsed))+' / 00:20';
-  if(pos>=clipStart+20)finish();
+  $('timer').textContent=fmt(Math.min(clipEnd-clipStart,elapsed))+' / '+fmt(clipEnd-clipStart);
+  if(pos>=clipEnd)finish();
  },150);
 }
 function load(){
  try{
   const id=videoId($('url').value);
-  clipStart=seconds($('start').value);
+  ({start:clipStart,end:clipEnd}=readTimes());
   clear();
   loadedId=id;
   if(!window.YT||!YT.Player){say('Waiting for YouTube player API…');return}
@@ -108,7 +117,8 @@ function load(){
 $('load').onclick=load;$('play').onclick=play;$('stop').onclick=pause;
 $('copy').onclick=()=>{
  if(!loadedId)return;
- const q=new URLSearchParams({video:loadedId,start:String(seconds($('start').value))});
+ const {start,end}=readTimes();
+ const q=new URLSearchParams({video:loadedId,start:String(start),end:String(end)});
  if($('card').value.trim())q.set('card',$('card').value.trim());
  const url=location.origin+location.pathname+'?'+q;
  navigator.clipboard.writeText(url).then(()=>say('Test link copied.')).catch(()=>say('Copy this URL: '+url));
@@ -116,6 +126,7 @@ $('copy').onclick=()=>{
 const q=new URLSearchParams(location.search);
 if(q.get('video'))$('url').value=q.get('video');
 if(q.get('start'))$('start').value=q.get('start');
+if(q.get('end'))$('end').value=q.get('end');
 if(q.get('card'))$('card').value=q.get('card');
 window.onYouTubeIframeAPIReady=()=>{if(q.get('video'))load()};
 const tag=document.createElement('script');tag.src='https://www.youtube.com/iframe_api';document.head.appendChild(tag);
