@@ -1,108 +1,27 @@
-<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="theme-color" content="#111827"><link rel="icon" href="data:,">
-<title>Tamil Hitster · Android QR test</title>
-<style>
-:root{font-family:system-ui,-apple-system,sans-serif;color-scheme:dark}*{box-sizing:border-box}body{margin:0;background:#0b1220;color:#f8fafc;padding:16px}main{max-width:540px;margin:24px auto;background:#1e293b;padding:24px;border-radius:20px}h1{margin:0 0 4px}.muted,small{color:#cbd5e1}label{display:block;margin-top:18px;margin-bottom:6px}input{width:100%;padding:12px;border:1px solid #64748b;border-radius:10px;background:#0f172a;color:white;font-size:16px}button{border:0;border-radius:10px;padding:13px 15px;background:#1db954;color:#06140b;font-weight:700;margin:8px 8px 0 0;cursor:pointer}button:disabled{opacity:.4;cursor:not-allowed}.secondary{background:#475569;color:white}.panel{padding:18px;background:#0f172a;border-radius:14px;margin-top:18px}#timer{font-size:42px;text-align:center;font-weight:800;font-variant-numeric:tabular-nums}#status{white-space:pre-wrap;overflow-wrap:anywhere}#answer[hidden],#setup[hidden],button[hidden]{display:none}a{color:#86efac}#qr{display:block;width:190px;height:190px;background:white;padding:8px;margin:14px auto}hr{border:0;border-top:1px solid #475569;margin:22px 0}
-</style>
-<script>window.spotifySdkReady=false;window.onSpotifyWebPlaybackSDKReady=()=>{window.spotifySdkReady=true};</script>
-<script src="https://sdk.scdn.co/spotify-player.js"></script>
-</head>
-<body><main>
-<h1>🎵 Tamil Hitster</h1><p class="muted">One-tap QR playback · Spotify Premium</p>
-<div class="panel"><strong id="cardLabel">Mystery song</strong><p class="muted">The answer is hidden until you reveal it. First use may require Spotify authorization.</p><div id="timer">00:00 / 00:20</div>
-<button id="play">▶ Play Song</button><button id="login" class="secondary" hidden>Reconnect Spotify</button><button id="stop" class="secondary" disabled>■ Stop</button><p id="status" role="status">Ready to set up.</p></div>
-<div id="setup"><label for="client">Spotify Client ID</label><input id="client" autocomplete="off" spellcheck="false" placeholder="32-character Client ID"><small>Client ID is public. Spotify refresh token is saved in this browser to reuse your login; use only on a trusted phone. Never enter a Client Secret.</small></div>
-<div class="panel"><button id="reveal" class="secondary">Reveal answer</button><div id="answer" hidden><h2 id="year"></h2><p id="film"></p><p id="song"></p></div></div>
-<hr><details><summary>QR testing and setup</summary><p>After deploying to HTTPS, open this page with <code>?card=001&amp;client_id=YOUR_CLIENT_ID</code> (or cards 005 and 006). The page URL is what the QR code must contain.</p><p><a id="cardLink" href="#">Copyable card URL</a></p><p>For an Android scan test, use a QR generator to encode the card URL shown above. A static hosting URL is required; <code>127.0.0.1</code> on your PC cannot be reached from your phone.</p></details>
-</main>
-<script>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Tamil Hitster · Spotify 5-song test</title><script src="https://sdk.scdn.co/spotify-player.js"></script><style>:root{font-family:system-ui,sans-serif;color-scheme:dark}*{box-sizing:border-box}body{background:#0b1220;color:#f8fafc;margin:0;padding:18px}main{max-width:600px;margin:20px auto;background:#1e293b;border-radius:20px;padding:22px}h1{margin:0}p,small{color:#cbd5e1}.panel{background:#0f172a;border-radius:14px;padding:17px;margin-top:16px}button{background:#1db954;color:#05210d;border:0;border-radius:9px;padding:12px;font-weight:700;margin:7px 6px 0 0;cursor:pointer}button:disabled{opacity:.5}.secondary{background:#475569;color:white}input,select{width:100%;padding:12px;background:#172338;border:1px solid #64748b;border-radius:9px;color:white;font-size:16px}label{display:block;margin:10px 0 6px}#timer{font-size:42px;font-weight:800;text-align:center;font-variant-numeric:tabular-nums}#status{white-space:pre-wrap;overflow-wrap:anywhere}a{color:#86efac}#answer[hidden],#setup[hidden],#trackPicker[hidden]{display:none}li{margin:7px 0}li a{font-weight:600}code{overflow-wrap:anywhere}</style></head><body><main><h1>🎵 Tamil Hitster</h1><p>Spotify Premium · five-song test · 20-second clips</p><div class="panel"><strong id="cardLabel">Mystery song</strong><div id="timer">00:00 / 00:20</div><button id="play">▶ Play Song</button><button id="stop" class="secondary" disabled>■ Stop</button><button id="login" class="secondary">Connect / Reconnect Spotify</button><p id="status" role="status">Loading…</p></div><div class="panel" id="setup"><label for="client">Spotify app Client ID</label><input id="client" placeholder="32-character Spotify Client ID" spellcheck="false"><small>Uses Spotify Premium and a Spotify app with this page's exact URL registered as a redirect URI. Client secret is never required.</small></div><div class="panel" id="trackPicker" hidden><label for="tracks">Confirm the correct Spotify recording (first time per card)</label><select id="tracks"></select><button id="saveTrack" class="secondary">Save selected recording</button><p><small>Track choices come from Spotify's own catalog. Confirm the movie/artist before saving.</small></p></div><div class="panel"><button id="reveal" class="secondary">Reveal answer</button><div id="answer" hidden><h2 id="song"></h2><p id="film"></p></div></div><div class="panel"><strong>Test cards</strong><ol id="cardLinks"></ol><p><small>Open each link on your phone or encode its URL as a QR code. You can test each card individually.</small></p></div></main><script>
 'use strict';
 const $=id=>document.getElementById(id);
-// These three exact track IDs were previously used in the user's Spotify test sheet.
-const CARDS={
- '001':{film:'Anjali',song:'Anjali Anjali',year:1990,track:'4V1gsL6mUNZ9UmdfyxfsbL'},
- '005':{film:'3',song:'Why This Kolaveri Di?',year:2011,track:'7xOmzMrjuhuaUHWwO8fhuN'},
- '006':{film:'Maari 2',song:'Rowdy Baby',year:2018,track:'3c6Y3iJr3bm6utsdRcm30J'}
-};
-const query=new URLSearchParams(location.search);
-const cardId=query.get('card')||sessionStorage.getItem('hitster_card')||'001';
-const qrClientId=query.get('client_id');
-const validQrClientId=qrClientId&&/^[a-f0-9]{32}$/i.test(qrClientId)?qrClientId:null;
-const card=CARDS[cardId];
-const redirect=location.origin+location.pathname; // Register this exact HTTPS URL in Spotify Dashboard, without query params.
-const scopes='streaming user-read-playback-state user-modify-playback-state';
-let player=null,deviceId=null,token=null,expiry=0,stopTimer=null,tickTimer=null,started=0,connectPromise=null,playing=false;
-const say=message=>{$('status').textContent=message};
-$('cardLabel').textContent=card?'CARD '+cardId:'Unknown card';
-$('cardLink').href=location.origin+location.pathname+'?card='+encodeURIComponent(cardId)+(validQrClientId?'&client_id='+encodeURIComponent(validQrClientId):'');
-$('cardLink').textContent=$('cardLink').href;
-if(!card){say('Unknown card ID. Try ?card=001, ?card=005, or ?card=006.');$('play').disabled=true}
-function b64url(bytes){return btoa(String.fromCharCode(...new Uint8Array(bytes))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'')}
-async function sha256(s){return b64url(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s)))}
-async function login(){const id=$('client').value.trim();if(!/^[a-f0-9]{32}$/i.test(id))throw Error('Enter your 32-character Spotify Client ID.');localStorage.setItem('hitster_client',id);sessionStorage.setItem('hitster_card',cardId);const verifier=b64url(crypto.getRandomValues(new Uint8Array(64)));const state=b64url(crypto.getRandomValues(new Uint8Array(20)));sessionStorage.setItem('hitster_verifier',verifier);sessionStorage.setItem('hitster_state',state);const params=new URLSearchParams({response_type:'code',client_id:id,scope:scopes,redirect_uri:redirect,code_challenge_method:'S256',code_challenge:await sha256(verifier),state});location.assign('https://accounts.spotify.com/authorize?'+params)}
-function saveTokens(j){token=j.access_token;expiry=Date.now()+j.expires_in*1000-60000;sessionStorage.setItem('hitster_access',token);sessionStorage.setItem('hitster_expiry',String(expiry));if(j.refresh_token)localStorage.setItem('hitster_refresh',j.refresh_token)}
-async function exchange(){const qs=new URLSearchParams(location.search);if(qs.has('error'))throw Error('Spotify authorization: '+qs.get('error'));if(!qs.has('code'))return;if(qs.get('state')!==sessionStorage.getItem('hitster_state'))throw Error('OAuth state mismatch. Try Connect Spotify again.');const body=new URLSearchParams({grant_type:'authorization_code',code:qs.get('code'),redirect_uri:redirect,client_id:localStorage.getItem('hitster_client'),code_verifier:sessionStorage.getItem('hitster_verifier')});const r=await fetch('https://accounts.spotify.com/api/token',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body});const j=await r.json();if(!r.ok)throw Error('Token exchange failed: '+JSON.stringify(j));saveTokens(j);const restore=sessionStorage.getItem('hitster_card')||'001';history.replaceState({},'',location.pathname+'?card='+encodeURIComponent(restore));sessionStorage.removeItem('hitster_verifier');sessionStorage.removeItem('hitster_state')}
-async function access(){if(token&&Date.now()<expiry)return token;const refresh=localStorage.getItem('hitster_refresh');if(!refresh)throw Error('Reconnect Spotify.');const body=new URLSearchParams({grant_type:'refresh_token',refresh_token:refresh,client_id:localStorage.getItem('hitster_client')});const r=await fetch('https://accounts.spotify.com/api/token',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body});const j=await r.json();if(!r.ok)throw Error('Token refresh failed: '+JSON.stringify(j));saveTokens(j);return token}
-async function api(path,method='GET',payload){const r=await fetch('https://api.spotify.com/v1'+path,{method,headers:{Authorization:'Bearer '+await access(),...(payload?{'Content-Type':'application/json'}:{})},body:payload?JSON.stringify(payload):undefined});if(!r.ok)throw Error(method+' '+path+' failed ('+r.status+'): '+await r.text());if(r.status===204||r.status===202)return null;return r.json()}
-async function connect(){
- if(deviceId)return deviceId;
- if(connectPromise)return connectPromise;
- connectPromise=new Promise(async(resolve,reject)=>{
-  try{
-   if(!window.Spotify||!window.spotifySdkReady)throw Error('Spotify SDK is not ready. Reload the page.');
-   if(!player){
-    player=new Spotify.Player({name:'Tamil Hitster Android Test',getOAuthToken:async cb=>{try{cb(await access())}catch(e){say(e.message)}},volume:0.65});
-    player.addListener('ready',({device_id})=>{deviceId=device_id;resolve(device_id)});
-    player.addListener('not_ready',()=>{deviceId=null;connectPromise=null;say('Browser player disconnected. Tap Play Song to reconnect.')});
-    for(const e of ['initialization_error','authentication_error','account_error','playback_error'])player.addListener(e,({message})=>{say(e+': '+message);if(!deviceId){connectPromise=null;reject(Error(message))}});
-    player.addListener('autoplay_failed',()=>say('Chrome blocked playback. Tap Play Song again.'));
-   }
-   const ok=await player.connect();if(!ok)throw Error('Spotify player connection failed. Check Android Chrome and Spotify Premium.');
-   say('Connecting Spotify player…');
-   setTimeout(()=>{if(!deviceId){connectPromise=null;reject(Error('Player connection timed out. Tap Play Song to retry.'))}},12000);
-  }catch(e){connectPromise=null;reject(e)}
- });
- return connectPromise;
-}
+const CARDS={S01:{song:'June Ponal',film:'Unnale Unnale',start:25,search:'track:June Ponal artist:Harris Jayaraj'},S02:{song:'Kannamma',film:'Rekka',start:20,search:'Kannamma Rekka D Imman'},S03:{song:'Kaadhal Yaanai',film:'Anniyan',start:30,search:'Kaadhal Yaanai Anniyan Harris Jayaraj'},S04:{song:'Kanave Kanave',film:'David',start:25,search:'Kanave Kanave Anirudh David'},S05:{song:'Venmegam Pennaga',film:'Yaaradi Nee Mohini',start:30,search:'Venmegam Yuvan Shankar Raja Hariharan'}};
+const qs=new URLSearchParams(location.search),cardId=CARDS[qs.get('card')]?qs.get('card'):(sessionStorage.getItem('hitster_spotify_card')||'S01'),card=CARDS[cardId]||CARDS.S01;
+let token='',expiry=0,player=null,deviceId='',connection=null,stopTimer=null,tickTimer=null,started=0,playing=false,results=[];
+const say=s=>$('status').textContent=s;
+$('cardLabel').textContent='CARD '+cardId;
+for(const [id,c] of Object.entries(CARDS)){const li=document.createElement('li'),a=document.createElement('a');a.href=location.pathname+'?card='+id;a.textContent=id+' — '+c.song;li.append(a);$('cardLinks').append(li)}
+const redirect=location.origin+location.pathname;
+function client(){return $('client').value.trim()||localStorage.getItem('hitster_spotify_client')||''}
+function validClient(){const id=client();if(!/^[a-f\d]{32}$/i.test(id))throw Error('Enter your Spotify app’s 32-character Client ID.');localStorage.setItem('hitster_spotify_client',id);return id}
+function base64url(data){return btoa(String.fromCharCode(...new Uint8Array(data))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/g,'')}
+async function login(){const id=validClient(),verifier=base64url(crypto.getRandomValues(new Uint8Array(64))),state=base64url(crypto.getRandomValues(new Uint8Array(24)));sessionStorage.setItem('hitster_spotify_verifier',verifier);sessionStorage.setItem('hitster_spotify_state',state);sessionStorage.setItem('hitster_spotify_card',cardId);const challenge=base64url(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(verifier)));const p=new URLSearchParams({response_type:'code',client_id:id,redirect_uri:redirect,scope:'streaming user-read-playback-state user-modify-playback-state',code_challenge_method:'S256',code_challenge:challenge,state});location.assign('https://accounts.spotify.com/authorize?'+p)}
+function saveTokens(j){token=j.access_token;expiry=Date.now()+j.expires_in*1000-60000;sessionStorage.setItem('hitster_spotify_access',token);sessionStorage.setItem('hitster_spotify_expiry',String(expiry));if(j.refresh_token)localStorage.setItem('hitster_spotify_refresh',j.refresh_token)}
+async function exchange(){if(qs.has('error'))throw Error('Spotify authorization: '+qs.get('error'));if(!qs.has('code'))return;if(qs.get('state')!==sessionStorage.getItem('hitster_spotify_state'))throw Error('Spotify login state mismatch. Try connecting again.');const body=new URLSearchParams({grant_type:'authorization_code',code:qs.get('code'),redirect_uri:redirect,client_id:validClient(),code_verifier:sessionStorage.getItem('hitster_spotify_verifier')});const r=await fetch('https://accounts.spotify.com/api/token',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body});const j=await r.json();if(!r.ok)throw Error('Spotify token exchange failed: '+JSON.stringify(j));saveTokens(j);history.replaceState({},'',location.pathname+'?card='+encodeURIComponent(sessionStorage.getItem('hitster_spotify_card')||'S01'));sessionStorage.removeItem('hitster_spotify_verifier');sessionStorage.removeItem('hitster_spotify_state')}
+async function access(){if(token&&Date.now()<expiry)return token;const refresh=localStorage.getItem('hitster_spotify_refresh');if(!refresh)throw Error('Connect Spotify first.');const body=new URLSearchParams({grant_type:'refresh_token',refresh_token:refresh,client_id:validClient()});const r=await fetch('https://accounts.spotify.com/api/token',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body});const j=await r.json();if(!r.ok)throw Error('Spotify token refresh failed. Reconnect Spotify.');saveTokens(j);return token}
+async function api(path,method='GET',payload){const r=await fetch('https://api.spotify.com/v1'+path,{method,headers:{Authorization:'Bearer '+await access(),...(payload?{'Content-Type':'application/json'}:{})},body:payload?JSON.stringify(payload):undefined});if(!r.ok)throw Error('Spotify API '+r.status+': '+await r.text());if(r.status===204||r.status===202)return null;return r.json()}
+async function resolveTrack(){const stored=localStorage.getItem('hitster_spotify_track_'+cardId);if(stored)return stored;const j=await api('/search?type=track&limit=10&q='+encodeURIComponent(card.search));results=j.tracks?.items||[];if(!results.length)throw Error('No Spotify tracks found. Try again later.');$('tracks').replaceChildren();for(const t of results){const o=document.createElement('option');o.value=t.id;o.textContent=t.name+' — '+t.artists.map(a=>a.name).join(', ')+' ('+t.album.name+')';$('tracks').append(o)}$('trackPicker').hidden=false;throw Error('Select the correct Spotify recording below, save it, then tap Play Song.');}
+$('saveTrack').onclick=()=>{const id=$('tracks').value;if(!id)return;localStorage.setItem('hitster_spotify_track_'+cardId,id);$('trackPicker').hidden=true;say('Recording saved for '+cardId+'. Tap Play Song.')};
+function connect(){if(deviceId)return Promise.resolve(deviceId);if(connection)return connection;connection=new Promise(async(resolve,reject)=>{try{if(!window.Spotify)throw Error('Spotify playback SDK not loaded. Reload.');if(!player){player=new Spotify.Player({name:'Tamil Hitster 5-Song Test',getOAuthToken:async cb=>{try{cb(await access())}catch(e){say(e.message)}},volume:.7});player.addListener('ready',({device_id})=>{deviceId=device_id;resolve(device_id)});player.addListener('not_ready',()=>{deviceId='';connection=null;say('Spotify browser player disconnected. Retry.')});for(const e of ['initialization_error','authentication_error','account_error','playback_error'])player.addListener(e,({message})=>{say(e+': '+message);if(!deviceId){connection=null;reject(Error(message))}});player.addListener('autoplay_failed',()=>say('Browser blocked autoplay. Tap Play Song again.'))}const ok=await player.connect();if(!ok)throw Error('Could not connect Spotify browser player. Check Premium and Chrome.');setTimeout(()=>{if(!deviceId){connection=null;reject(Error('Spotify device connection timed out. Retry.'))}},12000)}catch(e){connection=null;reject(e)}});return connection}
 function reset(){clearTimeout(stopTimer);clearInterval(tickTimer);stopTimer=null;tickTimer=null;$('timer').textContent='00:00 / 00:20'}
-async function stop(){reset();$('stop').disabled=true;try{if(player)await player.pause();say('Pause requested. Confirm audio stopped.')}catch(e){say(e.message)}}
-async function play(){
- if(!card||playing)return;
- playing=true;$('play').disabled=true;
- try{
-  reset();
-  // Activate audio within the user gesture before any asynchronous API work.
-  if(player)await player.activateElement();
-  const id=$('client').value.trim();
-  if(!/^[a-f0-9]{32}$/i.test(id))throw Error('Missing Spotify Client ID in QR code.');
-  localStorage.setItem('hitster_client',id);
-  if(!localStorage.getItem('hitster_refresh')&&!sessionStorage.getItem('hitster_access')){
-   say('First-time Spotify authorization required. You will return to this card.');
-   await login();return;
-  }
-  await access();
-  const device=await connect();
-  await player.activateElement();
-  $('stop').disabled=false;
-  await api('/me/player/play?device_id='+encodeURIComponent(device),'PUT',{uris:['spotify:track:'+card.track],position_ms:20000});
-  started=performance.now();say('Playing from 00:20. Automatically stopping after 20 seconds.');
-  tickTimer=setInterval(()=>{$('timer').textContent='00:'+String(Math.min(20,Math.floor((performance.now()-started)/1000))).padStart(2,'0')+' / 00:20'},250);
-  stopTimer=setTimeout(stop,20000);
- }catch(e){reset();$('stop').disabled=true;say(e.message+' If authorization expired, use Reconnect Spotify.');$('login').hidden=false}
- finally{playing=false;$('play').disabled=false}
-}
-$('login').onclick=()=>login().catch(e=>say(e.message));$('play').onclick=play;$('stop').onclick=stop;
-$('reveal').onclick=()=>{const hidden=!$('answer').hidden;$('answer').hidden=hidden;$('reveal').textContent=hidden?'Reveal answer':'Hide answer';if(!hidden&&card){$('year').textContent=card.year;$('film').textContent='Film: '+card.film;$('song').textContent='Song: '+card.song}};
-(async()=>{try{
- $('client').value=validQrClientId||localStorage.getItem('hitster_client')||'';
- if(validQrClientId)localStorage.setItem('hitster_client',validQrClientId);
- await exchange();
- token=token||sessionStorage.getItem('hitster_access');expiry=expiry||Number(sessionStorage.getItem('hitster_expiry')||0);
- $('setup').hidden=true;
- if(localStorage.getItem('hitster_refresh')||token){say('Ready. Tap Play Song.');}
- else say('Tap Play Song to authorize Spotify once, then return to play.');
- }catch(e){say(e.message);$('login').hidden=false}
-})();
+async function stop(){reset();$('stop').disabled=true;try{if(player)await player.pause();say('Playback stopped.')}catch(e){say('Stop requested: '+e.message)}}
+async function play(){if(playing)return;playing=true;$('play').disabled=true;try{reset();validClient();if(player)await player.activateElement();if(!localStorage.getItem('hitster_spotify_refresh')&&!sessionStorage.getItem('hitster_spotify_access')){say('Authorizing Spotify. You will return to this card.');await login();return}await access();const track=await resolveTrack();const device=await connect();await player.activateElement();await api('/me/player/play?device_id='+encodeURIComponent(device),'PUT',{uris:['spotify:track:'+track],position_ms:card.start*1000});started=performance.now();$('stop').disabled=false;say('Playing '+cardId+' from 00:'+card.start+' for 20 seconds.');tickTimer=setInterval(()=>{$('timer').textContent='00:'+String(Math.min(20,Math.floor((performance.now()-started)/1000))).padStart(2,'0')+' / 00:20'},200);stopTimer=setTimeout(stop,20000)}catch(e){say(e.message)}finally{playing=false;$('play').disabled=false}}
+$('play').onclick=play;$('stop').onclick=stop;$('login').onclick=()=>login().catch(e=>say(e.message));$('reveal').onclick=()=>{const hidden=!$('answer').hidden;$('answer').hidden=hidden;$('reveal').textContent=hidden?'Reveal answer':'Hide answer';if(!hidden){$('song').textContent=card.song;$('film').textContent='Movie: '+card.film}};
+(async()=>{try{$('client').value=localStorage.getItem('hitster_spotify_client')||'';await exchange();token=sessionStorage.getItem('hitster_spotify_access')||token;expiry=Number(sessionStorage.getItem('hitster_spotify_expiry')||expiry);say(localStorage.getItem('hitster_spotify_refresh')||token?'Ready. Tap Play Song.':'Enter your Spotify Client ID and tap Connect / Reconnect Spotify.')}catch(e){say(e.message)}})();
 </script></body></html>
